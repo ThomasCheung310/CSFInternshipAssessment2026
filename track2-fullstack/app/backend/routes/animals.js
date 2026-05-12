@@ -31,6 +31,10 @@ router.post('/', (req, res) => {
   }
 
   if (paddock_id) {
+    const paddock = db.prepare('SELECT * FROM paddocks WHERE id = ?').get(paddock_id);
+    if (paddock.animal_count >= paddock.capacity){
+    return res.status(400).json({ error: 'Animal amount exceeded capacity'})
+  }
     db.prepare(
       'UPDATE paddocks SET animal_count = animal_count + 1 WHERE id = ?'
     ).run(paddock_id);
@@ -67,6 +71,10 @@ router.put('/:id', (req, res) => {
       db.prepare('UPDATE paddocks SET animal_count = animal_count - 1 WHERE id=?').run(animal.paddock_id);
     }
     if (updates.paddock_id) {
+      const paddock = db.prepare('SELECT * FROM paddocks WHERE id = ?').get(updates.paddock_id);
+      if (paddock.animal_count >= paddock.capacity){
+      return res.status(400).json({ error: 'Animal amount exceeded capacity'})
+  }
       db.prepare(
         'UPDATE paddocks SET animal_count = animal_count + 1 WHERE id = ?'
       ).run(updates.paddock_id);
