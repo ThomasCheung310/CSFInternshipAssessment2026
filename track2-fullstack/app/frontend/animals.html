@@ -46,6 +46,12 @@
 
     async function loadAnimals() {
       const animals = await api.get(`/animals?page=${currentPage}&limit=${LIMIT}`);
+      const paddocks = await api.get('/paddocks');
+      const paddockMap = {};
+      paddocks.forEach(p => {
+        paddockMap[p.id] = p.name;
+      });
+
       const tbody = document.getElementById('animals-body');
 
       if (!animals.length) {
@@ -63,7 +69,7 @@
             <td>${a.tag_number}</td>
             <td>${a.name}</td>
             <td>${a.breed ?? '—'}</td>
-            <td>${a.paddock_id ?? '—'}</td>
+            <td>${paddockMap[a.paddock_id] ?? '—'}</td>
             <td>${event}</td>
             <td><a href="animal-detail.html?id=${a.id}">View</a></td>
           </tr>
