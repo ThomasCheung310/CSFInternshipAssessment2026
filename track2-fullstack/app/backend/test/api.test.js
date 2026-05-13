@@ -108,3 +108,63 @@ test('POST /api/animals/:id/health-events creates an event', async () => {
   assert.equal(body.event_type, 'checkup');
   assert.equal(body.animal_id, id);
 });
+
+test('POST /api/animals/:id/creates a weight record and returns 201', async () => {
+  const { body: animals } = await get('/animals?page=0&limit=1');
+  const id = animals[0].id;
+  const { status, body } = await post(`/animals/${id}/weights`, {
+    weight_kg: 58.1,
+    date: '2025-01-10',
+    
+  });
+  assert.equal(status, 201);
+  assert.equal(body.weight_kg, 58.1);
+  assert.equal(body.animal_id, id);
+});
+
+test('POST /api/animals/:id/returns 422 if `weight_kg` is missing', async () => {
+  const { body: animals } = await get('/animals?page=0&limit=1');
+  const id = animals[0].id;
+  const { status, body } = await post(`/animals/${id}/weights`, {
+    date: '2025-01-10',
+    
+  });
+  assert.equal(status, 422);
+  assert.ok(body.error);
+});
+
+test('POST /api/animals/:id/returns 422 if `weight_kg` is non-positive', async () => {
+  const { body: animals } = await get('/animals?page=0&limit=1');
+  const id = animals[0].id;
+  const { status, body } = await post(`/animals/${id}/weights`, {
+    weight_kg: -5,
+    date: '2025-01-10',
+    
+  });
+  assert.equal(status, 422);
+  assert.ok(body.error);
+});
+
+test('POST /api/animals/:id/returns 404 if the animal does not exist', async () => {
+  const id = 99999
+  const { status, body } = await post(`/animals/${id}/weights`, {
+    weight_kg: 58.1,
+    date: '2025-01-10',
+  });
+  assert.equal(status, 404);
+  assert.ok(body.error);
+});
+
+test('GET /api/animals/:id returns all records ordered by date descending', async () => {
+  const { body: animals } = await get('/animals?page=0&limit=1');
+  const id = animals[0].id;
+  await post(`/animals/${id}/weights`, { weight_kg: 40.0, date: '2024-01-01' });
+  await post(`/animals/${id}/weights`, { weight_kg: 50.0, date: '2026-04-15' });
+  const { status, body } = await get(`/animals/${id}/weights`);
+  
+
+  assert.equal(status, 200);
+  assert.ok(Array.isArray(body));
+  assert.equal(body[0].date, '2026-04-15' );
+
+});
