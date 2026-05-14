@@ -1,6 +1,6 @@
-#Code Audit for FarmTracker App
+# Code Audit for FarmTracker App
 
-##Problems Found
+## Problems Found
 1. In PUT/:id in animals.js, the animal count of the old paddock does not decrease after updating the animal count of the new paddock.
 
 2. Before updating the animal count of the new paddock, the capacity is not checked. Which means animal count can increase even if the capacity is reached.
@@ -13,7 +13,7 @@
 
 6. The paddock name for each animal is shown as ID instead of the paddock name in the frontend.
 
-##Priority:
+## Priority:
 Issue 1 would be fixed first since it could affect the other functionalities such as the capacity check and error in the displayed count.
 
 Issue 2 and 3 would be fixed second since the capacity of the paddock is related to the physical limitation of the paddock. With a faulty capacity check, more animals than the actual capacity would be accepted which the physical paddock could not handle.
